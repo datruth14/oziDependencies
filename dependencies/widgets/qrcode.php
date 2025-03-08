@@ -37,71 +37,82 @@ function qrcodeGen($url='ozi.com.ng',$width='300',$height="300"){
 //creating qrScanner Widgets
 //creating qrScanner Widgets
 //creating qrScanner Widgets
+
+
+
+//creating qrScanner Widgets
+//creating qrScanner Widgets
+//creating qrScanner Widgets
+//creating qrScanner Widgets
 function qrScanner($redirect = "./?s=deligates&&data=", $width = "250", $height = "250") {
-  ?>
-  <script src="https://unpkg.com/html5-qrcode"></script>
+    ?>
+   <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        #reader {
+            width: <?php echo htmlspecialchars($width); ?>px;
+            height: <?php echo htmlspecialchars($height); ?>px;
+            border: 1px solid #ccc;
+        }
+        #result {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color:white;
+        }
+        .error {
+            color: red;
+        }
+    </style>
 
-  <style>
-      #reader {
-          width: <?php echo htmlspecialchars($width); ?>px;
-          height: <?php echo htmlspecialchars($height); ?>px;
-      }
-      #result {
-          text-align: center;
-          font-size: 18px;
-          font-weight: bold;
-          margin-top: 10px;
-      }
-  </style>
+    <div id="reader"></div>
+    <p id="result"></p>
 
-  <div id="reader"></div>
-  <p id="result"></p>
+    <script>
+        const targetUrl = <?php echo json_encode($redirect); ?>;
 
-  <script>
-      const targetUrl = "<?php echo htmlspecialchars($redirect); ?>";
+        function onScanSuccess(decodedText) {
+            document.getElementById("result").innerText = "Scanned: " + decodedText;
+            window.location.href = targetUrl + encodeURIComponent(decodedText);
+        }
 
-      function onScanSuccess(decodedText) {
-          document.getElementById("result").innerText = "Scanned: " + decodedText;
-          window.location.href = targetUrl + encodeURIComponent(decodedText);
-      }
+        function onScanFailure(error) {
+            console.warn(`QR Code scan error: ${error}`);
+        }
 
-      function onScanFailure(error) {
-          console.warn(`QR Code scan error: ${error}`);
-      }
+        const scannerConfig = {
+            fps: 10,
+            qrbox: {
+                width: Math.min(<?php echo $width; ?>, <?php echo $height; ?>) * 0.6,
+                height: Math.min(<?php echo $width; ?>, <?php echo $height; ?>) * 0.9
+            },
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true,
+            disableFlip: false
+        };
 
-      const scannerConfig = {
-          fps: 10,
-          qrbox: {
-              width: Math.min(<?php echo $width; ?>, <?php echo $height; ?>) * 0.8,
-              height: Math.min(<?php echo $width; ?>, <?php echo $height; ?>)
-          },
-          rememberLastUsedCamera: true, 
-          showTorchButtonIfSupported: false,
-          disableFlip: true,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_CAMERA]
-      };
+        async function startScannerWithBackCamera() {
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (devices.length === 0) {
+                    document.getElementById("result").innerText = "No camera available.";
+                    return;
+                }
 
-      function startScannerWithBackCamera() {
-          Html5Qrcode.getCameras().then(devices => {
-              if (devices.length > 0) {
-                  const backCamera = devices.find(device => device.label.toLowerCase().includes("back")) || devices[0];
-                  const scanner = new Html5Qrcode("reader");
-                  scanner.start(backCamera.id, scannerConfig, onScanSuccess, onScanFailure);
-              } else {
-                  document.getElementById("result").innerText = "No camera available.";
-              }
-          }).catch(err => {
-              document.getElementById("result").innerText = "Camera permission denied.";
-          });
-      }
+                const backCamera = devices.find(device => device.label.toLowerCase().includes("back")) || devices[0];
+                const scanner = new Html5Qrcode("reader");
 
-      startScannerWithBackCamera();
-  </script>
-  <?php
+                await scanner.start(backCamera.id, scannerConfig, onScanSuccess, onScanFailure);
+            } catch (error) {
+                document.getElementById("result").innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        startScannerWithBackCamera();
+    </script>
+    <?php
 }
 //creating qrScanner Widgets
 //creating qrScanner Widgets
 //creating qrScanner Widgets
-
-
 ?>
