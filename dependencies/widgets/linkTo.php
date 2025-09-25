@@ -1,15 +1,22 @@
 <?php
-function linkTo($screen, $params = [], $method = "GET", $label = "", $class = "")
-{
-    $query = http_build_query(array_merge(["s" => $screen], $params));
+/**
+ * linkTo()
+ * Minimal screen navigation helper for Ozi Script Router
+ *
+ * Usage:
+ *   <?= linkTo("about") ?>
+ *   <?= linkTo("profile", "&&user=2&&date=23") ?>
+ *   <?= linkTo("productView", "&&id=123") ?>
+ */
+function linkTo(string $screen, string $params = "", string $text = null): string {
+    // build query string
+    $query = "?s={$screen}" . $params;
 
-    return "<a 
-        href='?{$query}' 
-        hx-get='?{$query}' 
-        hx-target='#appModalContent' 
-        hx-trigger='click' 
-        hx-push-url='true'
-        onclick=\"document.getElementById('appModal').classList.remove('hidden')\"
-        class='{$class}'>{$label}</a>";
+    // if text provided → return <a>
+    if ($text) {
+        return "<a href='#' data-linkto='{$query}'>{$text}</a>";
+    }
+
+    // else return attribute only
+    return "data-linkto='{$query}'";
 }
-?>
