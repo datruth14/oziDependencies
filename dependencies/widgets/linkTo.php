@@ -1,28 +1,15 @@
 <?php
+function linkTo($screen, $params = [], $method = "GET", $label = "", $class = "")
+{
+    $query = http_build_query(array_merge(["s" => $screen], $params));
 
-function linkTo($screen, $label = null, $params = [], $method = "GET", $class = "btn") {
-    $queryString = "s=" . urlencode($screen);
-
-    if (!empty($params)) {
-        $queryString .= "&" . http_build_query($params);
-    }
-
-    $url = "router.php?" . $queryString;
-    $hxAttr = strtoupper($method) === "POST" ? "hx-post" : "hx-get";
-    $text = $label ?? ucfirst($screen);
-
-    return <<<HTML
-<button 
-    class="$class"
-    $hxAttr="$url"
-    hx-target="#appModalContent"
-    hx-swap="innerHTML"
-    data-screen="$screen"
-    data-url="$url"
-    onclick="openModalAndPush(this)">
-    $text
-</button>
-HTML;
+    return "<a 
+        href='?{$query}' 
+        hx-get='?{$query}' 
+        hx-target='#appModalContent' 
+        hx-trigger='click' 
+        hx-push-url='true'
+        onclick=\"document.getElementById('appModal').classList.remove('hidden')\"
+        class='{$class}'>{$label}</a>";
 }
-
 ?>
